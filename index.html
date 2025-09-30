@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luminara VR</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/loaders/RGBELoader.js"></script>
+</head>
+<body>
+  <a-scene>
+    <!-- Камера с WASD и гравитацией -->
+    <a-entity id="player"
+      camera
+      wasd-controls
+      look-controls
+      gravity-jump
+      horizontal-bounds="minX:-100; maxX:100; minZ:-100; maxZ:100"
+      position="0 1.6 0">
+    </a-entity>
+
+    <a-assets>
+      <a-asset-item id="GroundModel" src="assets/models/ground.glb"></a-asset-item>
+      <a-asset-item id="BushModel" src="assets/models/bush.glb"></a-asset-item>
+      <a-asset-item id="Bonfire" src="assets/models/bonfire_animated.glb"></a-asset-item>
+      <a-asset-item id="DeerModel" src="assets/models/deer.glb"></a-asset-item>
+      <a-asset-item id="FirModel" src="assets/models/fir.glb"></a-asset-item>
+      <a-asset-item id="HareModel" src="assets/models/hare.glb"></a-asset-item>
+      <a-asset-item id="HouseModel" src="assets/models/house.glb"></a-asset-item>
+      <a-asset-item id="TreeModel" src="assets/models/tree.glb"></a-asset-item>
+      <img id="dummy" src="">
+    </a-assets>
+    <a-entity gltf-model="#GroundModel" position="0 -0.02 0" scale="5 1 5"></a-entity>
+    <a-entity hdr-sky="src: assets/models/dusk.hdr"></a-entity>
+
+    <a-sky color="#223344"></a-sky>
+
+<a-entity light="type: directional; intensity: 0.3; color: #ffaabb" position="1 2 -1"></a-entity>
+<a-entity light="type: ambient; intensity: 0.4; color: #334455"></a-entity>
+<a-entity light="type: hemisphere; intensity: 0.6; color: #445566; groundColor: #111122"></a-entity>
+
+
+<a-entity gltf-model="#FirModel" position="10 -1 0" scale="1 1 1"></a-entity>
+<a-entity gltf-model="#FirModel" position="9 0 -2" scale="0.8 0.8 0.8"></a-entity>
+<a-entity gltf-model="#FirModel" position="7 -1 -4" scale="1 1 1"></a-entity>
+<a-entity gltf-model="#HouseModel" position="3 -0.2 -4" scale="0.4 0.4 0.4" rotation="0 180 0"></a-entity>
+<a-entity gltf-model="#TreeModel" position="-12 0 -4" scale="1.5 1.5 1.5"></a-entity>
+<a-entity gltf-model="#DeerModel" position="5 0.7 0" scale="1 1 1" rotation="0 -45 0"></a-entity>
+<a-entity gltf-model="#HareModel" position="-2 -1.7 7" scale="1 1 1" rotation="0 0 0"></a-entity>
+<a-entity gltf-model="#BushModel" position="-15 0 6" scale="1 1 1"></a-entity>
+<a-entity gltf-model="#Bonfire" position="1 0.8 1" scale="1 1 1"></a-entity>
+  
+
+  <script>
+    // Компонент для гравитации и прыжка
+    AFRAME.registerComponent('gravity-jump', {
+      schema: {
+        floorY: { type: 'number', default: 1.6 },
+        jumpHeight: { type: 'number', default: 1.5 }
+      },
+      init: function () {
+        this.velocityY = 0;
+        this.isJumping = false;
+        window.addEventListener('keydown', e => {
+          if (e.code === 'Space' && !this.isJumping) {
+            this.velocityY = this.data.jumpHeight * 0.2;
+            this.isJumping = true;
+          }
+        });
+      },
+      tick: function (time, delta) {
+        const el = this.el;
+        const pos = el.object3D.position;
+        const dt = delta / 1000;
+
+        // гравитация
+        this.velocityY -= 1.5 * dt;
+        pos.y += this.velocityY;
+
+        // проверка пола
+        if (pos.y <= this.data.floorY) {
+          pos.y = this.data.floorY;
+          this.velocityY = 0;
+          this.isJumping = false;
+        }
+
+        el.object3D.position.copy(pos);
+      }
+    });
+
+    AFRAME.registerComponent('horizontal-bounds', {
+      schema: {
+        minX: { type: 'number', default: -100 },
+        maxX: { type: 'number', default: 100 },
+        minZ: { type: 'number', default: -100 },
+        maxZ: { type: 'number', default: 100 }
+      },
+      tick: function () {
+        const pos = this.el.object3D.position;
+        pos.x = Math.min(this.data.maxX, Math.max(this.data.minX, pos.x));
+        pos.z = Math.min(this.data.maxZ, Math.max(this.data.minZ, pos.z));
+      }
+    });
+
+
+    AFRAME.registerComponent('hdr-sky', {
+      schema: { src: {type: 'string'} },
+      init: function() {
+        const scene = this.el.sceneEl.object3D;
+        const loader = new THREE.RGBELoader();
+        loader.setDataType(THREE.UnsignedByteType); 
+        loader.load(this.data.src, function(texture) {
+          texture.mapping = THREE.EquirectangularReflectionMapping;
+          scene.environment = texture;      // освещение по HDR
+          scene.background = texture;       // фон HDR
+        });
+      }
+    });
+  </script>
+</body>
+</html>
