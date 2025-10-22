@@ -4,23 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Luminara VR</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/loaders/RGBELoader.js"></script>
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <script src="lib/RGBELoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+  <script type="module" src="components/hdr_environment.js"></script>
+  <script src="components/light_reactive.js"></script>
+  <script src="components/collisions.js"></script>
+  <script src="components/proximity_animate.js"></script>
+  <script src="components/item_interaction.js"></script>
   <script src="js/script.js"></script>
 </head>
 <body>
-  <a-scene light="defaultLightsEnabled: false" hdr-environment="url: assets/models/dusk.hdr; showBackground: true; showGround: true; groundSize: 15">
+  <a-scene light="defaultLightsEnabled: false"
+   fog="type: exponential; color: #222533; density: 0.04">
+   <a-sky color="#0a0d15"></a-sky>
+    
 
     <!-- Камера с WASD, прыжком, ходьбой по земле и коллизиями -->
-    <a-entity id="player"
+    <a-entity id="player" rotation="0 -64.72589620033884 0"
       camera
       wasd-controls
       look-controls
-      gravity-terrain="target: #GroundEntity; offset: 1.6; jumpHeight: 1.5"
+      reset-on-collision="with: .collision"
+      cursor="rayOrigin: mouse" 
+      raycaster="objects: .clickable"
+      gravity-terrain="target: #GroundEntity, #BridgeEntity; offset: 1.6; jumpHeight: 1.5"
       horizontal-bounds="minX:-100; maxX:100; minZ:-100; maxZ:100"
       no-pass-through="obstacles: #TreeModel, #HouseModel, #FirModel"
-      position="0 0 0">
+      position="-82.88771 3.13364 27.23331">
+
+
+      <a-entity cursor="fuse: true; fuseTimeout: 500"
+            position="0 0 -1"
+            geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+            material="color: white; shader: flat">
+  </a-entity>
     </a-entity>
+
+    <!-- Лунный свет -->
+<a-entity light="type: directional;
+                 color: #b0c7ff;
+                 intensity: 0.4;
+                 castShadow: true"
+          position="2 6 -4"
+          rotation="-45 45 0"></a-entity>
+
+<!-- Мягкий рассеянный свет -->
+<a-entity light="type: ambient;
+                 color: #556699;
+                 intensity: 0.2"></a-entity>
+
 
     <a-assets>
       <a-asset-item id="GroundModel" src="assets/models/ground.glb"></a-asset-item>
@@ -29,24 +62,261 @@
       <a-asset-item id="DeerModel" src="assets/models/deer.glb"></a-asset-item>
       <a-asset-item id="FirModel" src="assets/models/fir.glb"></a-asset-item>
       <a-asset-item id="HareModel" src="assets/models/hare.glb"></a-asset-item>
-      <a-asset-item id="HouseModel" src="assets/models/house.glb"></a-asset-item>
+      <a-asset-item id="HouseModel" src="assets/models/house_animated.glb"></a-asset-item>
       <a-asset-item id="TreeModel" src="assets/models/tree.glb"></a-asset-item>
+      <a-asset-item id="StreetLampModel" src="assets/models/street_lamp.glb"></a-asset-item>
+      <a-asset-item id="RiverModel" src="assets/models/water_animation.glb"></a-asset-item>
+      <a-asset-item id="BridgeModel" src="assets/models/bridge.glb"></a-asset-item>
+      <a-asset-item id="TorchModel" src="assets/models/torch.glb"></a-asset-item>
+      <a-asset-item id="TableModel" src="assets/models/table.glb"></a-asset-item>
+      <a-asset-item id="KeyModel" src="assets/models/key.glb"></a-asset-item>
+      <a-asset-item id="CoinsModel" src="assets/models/coins.glb"></a-asset-item>
     </a-assets>
 
-    <!-- Модель земли -->
     <a-entity id="GroundEntity" gltf-model="#GroundModel" position="0 -0.02 0" scale="5 1 5"></a-entity>
 
-    <a-sky color="#223344"></a-sky>
-    <a-entity light="type: directional; intensity: 0.8; color: #FFFFFF" position="1 2 -1"></a-entity>
 
-    <a-entity gltf-model="#FirModel" position="10 -1 0" scale="1 1 1"></a-entity>
-    <a-entity gltf-model="#HouseModel" position="3 -0.2 -4" scale="0.4 0.4 0.4" rotation="0 180 0"></a-entity>
-    <a-entity gltf-model="#TreeModel" position="-12 0 -4" scale="1.5 1.5 1.5"></a-entity>
-    <a-entity gltf-model="#DeerModel" position="5 0.7 0" scale="1 1 1" rotation="0 -45 0"></a-entity>
+    <a-entity id="FirEntity1" gltf-model="#FirModel" position="-86.75391 -0.33117 25.08074" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity2" gltf-model="#FirModel" position="-89.03766 -0.61173 16.82078" scale="0.6109 0.92083 0.6787" class="collision"></a-entity>
+    <a-entity id="FirEntity3" gltf-model="#FirModel" position="-65.73647 -1 30.31078" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity4" rotation="-0.868604017418328 1.9354514319519207 10.871301204812239" gltf-model="#FirModel" class="collision" position="-80.06975 -2.09975 32.56274" scale="0.61921 1.7546 1.14181"></a-entity>
+    <a-entity id="FirEntity5" gltf-model="#FirModel" position="-70.32171 -1 32.56631" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity6" gltf-model="#FirModel" position="-85.12897 -1 29.77242" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity8" gltf-model="#FirModel" position="-78.42475 -1 33.81232" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity9" gltf-model="#FirModel" position="-72.64901 -1 33.78928" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity10" gltf-model="#FirModel" position="-82.97176 -1 31.53429" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity11" gltf-model="#FirModel" position="-86.20046 -1 27.27674" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity12" gltf-model="#FirModel" position="-67.87519 -1 31.38438" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity13" gltf-model="#FirModel" position="-82.39724 -1 13.04397" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity14" gltf-model="#FirModel" position="-84.57921 -1 13.83021" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity15" gltf-model="#FirModel" position="-86.13218 -1 15.82778" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity16" gltf-model="#FirModel" position="-87.914 -1 20.64371" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity17" gltf-model="#FirModel" position="-87.37728 -1 23.1313" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity18" gltf-model="#FirModel" position="-88.28535 -1 18.13997" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity19" gltf-model="#FirModel" position="-75.46238 -1 34.0113" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity20" gltf-model="#FirModel" position="-83.22327 -1 10.18401" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity21" gltf-model="#FirModel" position="-84.31251 -1 7.32474" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity22" gltf-model="#FirModel" position="-85.12945 -1 4.73778" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity23" gltf-model="#FirModel" position="-85.67407 -1 1.47004" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity24" gltf-model="#FirModel" position="-84.85714 -1 -1.38924" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity25" gltf-model="#FirModel" position="-84.0402 -1 -3.9762" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity26" gltf-model="#FirModel" position="-82.67864 -1 -6.1547" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity27" gltf-model="#FirModel" position="-81.04477 -1 -8.46935" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity28" gltf-model="#FirModel" position="-79.00243 -1 -10.37553" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity30" gltf-model="#FirModel" position="-76.68778 -1 -11.73709" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity31" gltf-model="#FirModel" position="-74.64545 -1 -12.82634" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity32" gltf-model="#FirModel" position="-72.06386 -1 -12.2005" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity33" gltf-model="#FirModel" position="-69.5605 -1 -11.02705" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity34" gltf-model="#FirModel" position="-67.29183 -1 -9.69714" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity35" gltf-model="#FirModel" position="-65.4143 -1 -7.97608" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity36" gltf-model="#FirModel" position="-63.14563 -1 -6.80263" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity37" gltf-model="#FirModel" position="-27.20148 -1 5.23911" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity38" gltf-model="#FirModel" position="-24.66638 -1 6.41613" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity39" gltf-model="#FirModel" position="-22.31235 -1 6.50667" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity40" gltf-model="#FirModel" position="-19.59617 -1 6.23505" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity41" gltf-model="#FirModel" position="-17.06106 -1 4.96749" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity42" gltf-model="#FirModel" position="-14.79758 -1 3.33779" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity43" gltf-model="#FirModel" position="-12.89625 -1 1.25538" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity44" gltf-model="#FirModel" position="-11.35708 -1 -1.18919" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity45" gltf-model="#FirModel" position="-9.99899 -1 -3.63375" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity46" gltf-model="#FirModel" position="-8.73144 -1 -6.07831" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity47" gltf-model="#FirModel" position="-7.64496 -1 -8.61342" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity48" gltf-model="#FirModel" position="-6.83011 -1 -11.05798" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity49" gltf-model="#FirModel" position="-5.56655 -1 -13.58446" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity50" gltf-model="#FirModel" position="-4.1038 -1 -15.97805" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity51" gltf-model="#FirModel" position="-3.43891 -1 -18.63759" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity52" gltf-model="#FirModel" position="-2.3751 -1 -21.29713" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity53" gltf-model="#FirModel" position="-1.44426 -1 -23.69072" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity54" gltf-model="#FirModel" position="-0.38044 -1 -26.08431" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity55" gltf-model="#FirModel" position="0.81635 -1 -28.61087" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity56" gltf-model="#FirModel" position="1.72518 -1 -31.19386" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity57" gltf-model="#FirModel" position="3.87767 -1 -33.05934" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity58" gltf-model="#FirModel" position="5.26482 -1 -35.54666" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity59" gltf-model="#FirModel" position="5.93449 -1 -37.98615" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity60" gltf-model="#FirModel" position="8.06299 -1 -39.70449" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity61" gltf-model="#FirModel" position="10.92586 -1 -40.15181" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity62" gltf-model="#FirModel" position="13.6098 -1 -41.31485" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity63" gltf-model="#FirModel" position="16.29374 -1 -43.01468" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity64" gltf-model="#FirModel" position="17.81464 -1 -45.51969" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity65" gltf-model="#FirModel" position="19.24607 -1 -48.0247" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity66" gltf-model="#FirModel" position="20.49858 -1 -50.61918" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity67" gltf-model="#FirModel" position="20.9459 -1 -53.39259" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity68" gltf-model="#FirModel" position="20.58804 -1 -55.53974" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity69" gltf-model="#FirModel" position="20.23018 -1 -58.22368" scale="1 1 1" class="collision"></a-entity>
+    <a-entity id="FirEntity70" gltf-model="#FirModel" position="19.51447 -1 -60.81815" scale="1 1 1" class="collision"></a-entity>
+    
+    
+    <a-entity id="RiverEntity" scale="0.57683 0.2 1.3" gltf-model="#RiverModel" animation-mixer="clip: Take 001; loop: repeat; crossFadeDuration: 1; timeScale: 0.1" position="-44.55316 -0.1813 -9.69836"></a-entity> 
+
+
+    <a-entity id="BridgeEntity" rotation="0.8966789493797384 -0.06703606203030632 0.009740282517223996" scale="0.03 0.009 0.016" gltf-model="#BridgeModel" position="-49.46453 2.41344 -0.47129"></a-entity>
+    <a-box id="BridgeWall1" color="#ffffff"  material="opacity: 0; transparent: true"  scale="32.46343 12.51832 0.9721" position="-49.33258 2.49834 -2.65451" width="1" height="1" depth="1" class="collision"></a-box> 
+    <a-box id="BridgeWall2" color="#ffffff"  material="opacity: 0; transparent: true"  scale="35.94231 13.04363 0.96361" position="-49.18026 4.36153 5.31643" width="1" height="1" depth="1" class="collision"></a-box> 
+    
+    
+    <a-entity id="HouseEntity"
+          gltf-model="#HouseModel"
+          class="clickable"
+          item-interaction="type: door"
+          animation-mixer="clip: closed; loop: repeat; timeScale: 1; repetitions: 1; clampWhenFinished: true"
+          position="5.58347 0.1499 -51.10506"
+          scale="1.12324 1.12324 1.12324"
+          rotation="0 132.64717802412227 0">
+    </a-entity>
+
+    
+    
+    <a-entity id="LampEntity1" rotation="0 -90 0" gltf-model="#StreetLampModel" material="transparent: true; opacity: 0.3" position="-64.08125 1.8 5.10032" scale="0.008 0.008 0.008">
+      <a-entity id="LightEntity1" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 474.95361 -65.61035"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity2" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-188.44861 466.00346 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity3" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 457.27274 45.53354"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity4" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 401.06283 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+    </a-entity>
+
+
+    <a-entity id="LampEntity2" rotation="0 90.86709560318265 0" gltf-model="#StreetLampModel" material="transparent: true; opacity: 0.3" position="-64.24095 1.8 -2.52225" scale="0.008 0.008 0.008">
+      <a-entity id="LightEntity5" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 474.95361 -65.61035"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity6" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-188.44861 466.00346 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity7" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 457.27274 45.53354"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity8" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 401.06283 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+    </a-entity>
+
+
+    <a-entity id="LampEntity3" rotation="0 90.86709560318265 0" gltf-model="#StreetLampModel" material="transparent: true; opacity: 0.3" position="-34.8734 1.8 -2.69688" scale="0.008 0.008 0.008">
+      <a-entity id="LightEntity9" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 474.95361 -65.61035"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity10" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-188.44861 466.00346 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity11" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 457.27274 45.53354"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity12" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 401.06283 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+    </a-entity>
+
+
+    <a-entity id="LampEntity4" rotation="0 -90 0" gltf-model="#StreetLampModel" material="transparent: true; opacity: 0.3" position="-35.10531 1.8 5.33412" scale="0.008 0.008 0.008">
+      <a-entity id="LightEntity13" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 474.95361 -65.61035"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity14" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-188.44861 466.00346 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity15" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 457.27274 45.53354"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity16" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 401.06283 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+    </a-entity>
+
+
+    <a-entity id="LampEntity1" rotation="0 90.86709560318265 0" gltf-model="#StreetLampModel" material="transparent: true; opacity: 0.3" position="-76.3154 0.34873 19.7771" scale="0.008 0.008 0.008">
+      <a-entity id="LightEntity1" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 474.95361 -65.61035"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity2" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-188.44861 466.00346 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity3" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 457.27274 45.53354"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+      <a-entity id="LightEntity4" light="type: point; color: #fff9e5; intensity: 1.5; distance: 10; decay: 2"
+            position="-108.4661 401.06283 0"
+            light-reactive="player: #player; distance: 7; normalIntensity: 1.5; flickerSpeed: 5">
+      </a-entity>
+    </a-entity>
+
+
+    <a-entity id="TorchEntity1" rotation="0 -90 0" gltf-model="#TorchModel" position="3.89647 -0.09618 -46.33524" scale="0.2 0.15 0.2">
+      <a-entity id="LightEntity17" light="type: point; color: #e25822; intensity: 1.5; distance: 20; decay: 5"
+            position="-0.30981 11.42483 -0.36969">
+      </a-entity>
+    </a-entity>
+
+
+    <a-entity id="TorchEntity2" rotation="0 -90 0" gltf-model="#TorchModel" position="0.77454 -0.20438 -49.73073" scale="0.2 0.15 0.2">
+      <a-entity id="LightEntity18" light="type: point; color: #e25822; intensity: 1.5; distance: 20; decay: 5"
+            position="-0.07 11.91988 0.0242">
+      </a-entity>
+    </a-entity>
+
+
+    <a-entity id="TorchEntity3" rotation="-45.00010522957486 -43.84960597695216 0" gltf-model="#TorchModel" position="3.69003 3.03258 -49.04111" scale="0.1 0.1 0.1">
+      <a-entity id="LightEntity19" light="type: point; color: #e25822; intensity: 1.5; distance: 100; decay: 1"
+            position="0.06557 10.70527 -0.58803">
+      </a-entity>
+    </a-entity>
+
+    <a-entity id="TableEntity1" rotation="0 42.90938223514248 0" gltf-model="#TableModel" position="4.18739 0 -52.87459" scale="1 1 1"></a-entity>
+    <a-entity id="TableEntity2" gltf-model="#TableModel" position="-1.47628 0 -50.55254" scale="1 1 1"></a-entity>
+
+    <a-entity id="CoinsEntity"
+          gltf-model="#CoinsModel"
+          item-interaction="type: coin"
+          class="clickable"
+          position="4.18739 0.99041 -52.87459"
+          scale="0.5 0.5 0.5">
+    </a-entity>
+
+
+    <a-entity id="KeyEntity"
+          gltf-model="#KeyModel"
+          item-interaction="type: key"
+          class="clickable"
+          position="-1.47628 1.02802 -50.55254"
+          rotation="-90 0 0"
+          scale="0.06727 0.06727 0.06727">
+    </a-entity>
+
+    
+  
+    <a-entity id="" gltf-model="#TreeModel" position="-12 0 -4" scale="1.5 1.5 1.5"></a-entity>
+    <a-entity id="DeerEntity1" gltf-model="#DeerModel" proximity-animate="player: #player; triggerDistance: 15; speed: 2" animation-mixer="clip: metarigAction; loop: repeat; crossFadeDuration: 0" position="-82.18973 0.7 1.66621" scale="1 1 1" rotation="0 134.72529594706177 0"></a-entity>
+    <a-entity id="DeerEntity2" gltf-model="#DeerModel" proximity-animate="player: #player; triggerDistance: 15; speed: 2" animation-mixer="clip: metarigAction; loop: repeat; crossFadeDuration: 0" position="-75.31686 0.7 -3.18237" scale="1 1 1" rotation="0 96.08502224343906 0"></a-entity>
     <a-entity gltf-model="#HareModel" position="-2 -1.7 7" scale="1 1 1"></a-entity>
     <a-entity gltf-model="#BushModel" position="-15 0 6" scale="1 1 1"></a-entity>
-    <a-entity gltf-model="#Bonfire" position="1 0.8 1" scale="1 1 1"></a-entity>
+    <a-entity gltf-model="#Bonfire" animation-mixer="clip: flamesAction; loop: pingpong; crossFadeDuration: 0" position="1 0.8 1" scale="2 2 2"></a-entity>
 
+    
   </a-scene>
 </body>
 </html>
