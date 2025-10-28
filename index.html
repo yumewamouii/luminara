@@ -12,6 +12,9 @@
   <script src="components/collisions.js"></script>
   <script src="components/proximity_animate.js"></script>
   <script src="components/item_interaction.js"></script>
+  <script src="components/toggle_campfire.js"></script>
+  <script src="components/boat_movement.js"></script>
+  <script src="components/spawn_message.js"></script>
   <script src="js/script.js"></script>
 </head>
 <body>
@@ -28,10 +31,11 @@
       reset-on-collision="with: .collision"
       cursor="rayOrigin: mouse" 
       raycaster="objects: .clickable"
-      gravity-terrain="target: #GroundEntity, #BridgeEntity; offset: 1.6; jumpHeight: 1.5"
+      gravity-terrain="target: #GroundEntity, #BridgeEntity, #BoatEntity; offset: 1.6; jumpHeight: 1.5"
       horizontal-bounds="minX:-100; maxX:100; minZ:-100; maxZ:100"
       no-pass-through="obstacles: #TreeModel, #HouseModel, #FirModel"
-      position="-82.88771 3.13364 27.23331">
+      position="-82.88771 3.13364 27.23331"
+      spawn-message="Пройдите через мост и найдите дом">
 
 
       <a-entity cursor="fuse: true; fuseTimeout: 500"
@@ -58,7 +62,7 @@
     <a-assets>
       <a-asset-item id="GroundModel" src="assets/models/ground.glb"></a-asset-item>
       <a-asset-item id="BushModel" src="assets/models/bush.glb"></a-asset-item>
-      <a-asset-item id="Bonfire" src="assets/models/bonfire_animated.glb"></a-asset-item>
+      <a-asset-item id="Campfire" src="assets/models/campfire.glb"></a-asset-item>
       <a-asset-item id="DeerModel" src="assets/models/deer.glb"></a-asset-item>
       <a-asset-item id="FirModel" src="assets/models/fir.glb"></a-asset-item>
       <a-asset-item id="HareModel" src="assets/models/hare.glb"></a-asset-item>
@@ -71,6 +75,8 @@
       <a-asset-item id="TableModel" src="assets/models/table.glb"></a-asset-item>
       <a-asset-item id="KeyModel" src="assets/models/key.glb"></a-asset-item>
       <a-asset-item id="CoinsModel" src="assets/models/coins.glb"></a-asset-item>
+      <a-asset-item id="PersonModel" src="assets/models/person.glb"></a-asset-item>
+      <a-asset-item id="BoatModel" src="assets/models/boat.glb"></a-asset-item>
     </a-assets>
 
     <a-entity id="GroundEntity" gltf-model="#GroundModel" position="0 -0.02 0" scale="5 1 5"></a-entity>
@@ -161,8 +167,13 @@
           animation-mixer="clip: closed; loop: repeat; timeScale: 1; repetitions: 1; clampWhenFinished: true"
           position="5.58347 0.1499 -51.10506"
           scale="1.12324 1.12324 1.12324"
-          rotation="0 132.64717802412227 0">
+          rotation="0 132.64717802412227 0"
+          class="collision">
     </a-entity>
+
+    
+    
+    
 
     
     
@@ -309,14 +320,35 @@
 
     
   
-    <a-entity id="" gltf-model="#TreeModel" position="-12 0 -4" scale="1.5 1.5 1.5"></a-entity>
+    <a-entity id="" gltf-model="#TreeModel" position="-30.38807 -1.7 -33.9535" scale="1.5 1.5 1.5"></a-entity>
     <a-entity id="DeerEntity1" gltf-model="#DeerModel" proximity-animate="player: #player; triggerDistance: 15; speed: 2" animation-mixer="clip: metarigAction; loop: repeat; crossFadeDuration: 0" position="-82.18973 0.7 1.66621" scale="1 1 1" rotation="0 134.72529594706177 0"></a-entity>
     <a-entity id="DeerEntity2" gltf-model="#DeerModel" proximity-animate="player: #player; triggerDistance: 15; speed: 2" animation-mixer="clip: metarigAction; loop: repeat; crossFadeDuration: 0" position="-75.31686 0.7 -3.18237" scale="1 1 1" rotation="0 96.08502224343906 0"></a-entity>
     <a-entity gltf-model="#HareModel" position="-2 -1.7 7" scale="1 1 1"></a-entity>
     <a-entity gltf-model="#BushModel" position="-15 0 6" scale="1 1 1"></a-entity>
-    <a-entity gltf-model="#Bonfire" animation-mixer="clip: flamesAction; loop: pingpong; crossFadeDuration: 0" position="1 0.8 1" scale="2 2 2"></a-entity>
+    <a-entity id="CampfireEntity"
+          gltf-model="#Campfire"
+          animation-mixer="clip: Animation; loop: pingpong; crossFadeDuration: 0"
+          position="-29.12792 0.88613 -47.93746"
+          scale="0.51144 0.51144 0.51144"
+          toggle-campfire="light: #LightEntity20"
+          class="clickable">
+  <a-entity id="LightEntity20"
+            light="type: point; color: #e25822; intensity: 5; distance: 200; decay: 15"
+            position="0.27791 2.35896 0.4707">
+  </a-entity>
+      </a-entity>
 
-    
+      <a-entity id="PersonEntity" rotation="0 55.028012559954526 0" gltf-model="#PersonModel" position="-29.25979 0.95147 -45.7746" scale="0.01 0.01 0.01"></a-entity>
+
+      <a-entity
+  id="BoatEntity"
+  gltf-model="#BoatModel"
+  position="-37.23499 0.07557 -34.67573"
+  rotation="0 175.1348633220485 0"
+  scale="0.015 0.015 0.015"
+  boat-movement="player: #player; speed: 0.6; activationDistance: 10; forwardAxis: '-x'">
+</a-entity>
+
   </a-scene>
 </body>
 </html>
